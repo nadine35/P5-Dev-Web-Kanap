@@ -2,7 +2,6 @@ const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 const productId = urlParams.get("id");
 var str = window.location.href;
-console.log(productId);
 
 const urlProduit = `http://localhost:3000/api/products/${productId}`;
 
@@ -16,7 +15,7 @@ fetch(urlProduit)
   })
   .then(async function (resAPI) {
     article = await resAPI;
-    console.log(article);
+
     // inserer l'image
     const imgSrc = document.getElementById("imgProduct");
     imgSrc.src = article.imageUrl;
@@ -60,19 +59,17 @@ document.getElementById("addToCart").addEventListener("click", function () {
   let price = document.getElementById("price").textContent;
   let image = document.getElementById("imgProduct").src;
   let basket = JSON.parse(localStorage.getItem("basket"));
-
+// si le panier n'a pas été créé on initialise la variable avec un tableau vide
   if (basket == null) {
     basket = [];
   }
-  console.log("basket", basket);
-  console.log(price);
+
   if (quantity === "0") {
     alert("veuillez choisir une quantité supèrieure à 0 !");
+  } else if (color == "") {
+    alert("Vous devez choisir une couleur !");
   } else {
-    if (quantity > 0 || quantity < 100) {
-      console.log("ok quantités");
-      console.log(basket);
-
+    if ((quantity > 0 || quantity < 100) && color !== "") {
       //vérification si le produit est déjà dans le panier
       let productExists = false;
       if (basket.length > 0) {
@@ -90,10 +87,10 @@ document.getElementById("addToCart").addEventListener("click", function () {
           color: color,
           id: productId,
           name: name,
-          price: price,
+          price: Number(price),
           imageUrl: image,
         };
-        console.log(price);
+
         basket.push(product);
       } else {
         for (let p of basket) {

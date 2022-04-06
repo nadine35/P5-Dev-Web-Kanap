@@ -1,10 +1,15 @@
 let basket = JSON.parse(localStorage.getItem("basket"));
-let section = document.getElementById("cart__items");
 
+// Condition de vérification si le panier existe et ou est vide et modification texte
+if (basket === null || basket.length === 0) {
+  document.querySelector("h1").textContent = " Votre panier est vide !";
+}
+let section = document.getElementById("cart__items");
+let blabla = document.getElementsByClassName(".article");
 function displayCart(basket) {
-  console.log(basket);
+  
   for (let product of basket) {
-    section.innerHTML += `<article class="cart__item" data-id="{product-ID}" data-color="{product-color}">
+    section.innerHTML += `<article class="cart__item" data-id=${product.id} data-color=${product.color}>
                  <div class="cart__item__img">
                    <img src="${product.imageUrl}" alt="Photographie d'un canapé">
                  </div>
@@ -24,163 +29,270 @@ function displayCart(basket) {
                      </div>
                    </div>
                  </div>
-               </article> `;
+               </article>
+                `;
   }
 }
+
 displayCart(basket);
 
-btn_supp = document.querySelectorAll(".deletItem");
-console.log(btn_supp);
+function getTotalPrix() {
+  let prixTotalCalcul = [];
+  let prixTotalArticle = document.getElementById("totalPrice");
+  let qteTotalArticle = document.getElementById("totalQuantity");
+  for (let m = 0; m < basket.length; m++) {
+    let prixProduitDansLePanier = basket[m].price * basket[m].quantity;
+    //mettre prix dans variable prixTotalCalcul
 
-// Gestion de la suppréssion d'un produit
-function deleteProduct() {
-  let btn_supprimer = document.querySelectorAll(".deleteItem");
+    prixTotalCalcul.push(prixProduitDansLePanier);
 
-  for (let j = 0; j < btn_supprimer.length; j++) {
-    btn_supprimer[j].addEventListener("click", (event) => {
-      event.preventDefault();
+   
+  }
+  //additionner les prix dans le tableau prixTotal avec la méthode reducer
+  const reducer = (accumulator, currentValue) => accumulator + currentValue;
+  const prixTotal = prixTotalCalcul.reduce(reducer, 0);
+  prixTotalArticle.innerHTML = prixTotal;
+}
+getTotalPrix();
 
-      // Selection de l'element à supprimer en fonction de son id ET sa couleur
-      let idDelete = basket[j].idProduit;
-      let colorDelete = basket[j].couleurProduit;
-      console.log(idDelete);
-      basket = basket.filter(
-        (el) => el.idProduit !== idDelete || el.couleurProduit !== colorDelete
+function getTotalQtes() {
+  let qteTotalCalcul = [];
+  let qteTotalArticle = document.getElementById("totalQuantity");
+
+  for (let l = 0; l < basket.length; l++) {
+    let qteProduitDansLePanier = basket[l].quantity;
+    //mettre prix dans variable prixTotalCalcul
+    qteTotalCalcul.push(qteProduitDansLePanier);
+
+   
+  }
+  //additionner les prix dans le tableau prixTotal avec la méthode reducer
+  const reducer = (accumulator, currentValue) => accumulator + currentValue;
+  const qteTotal = qteTotalCalcul.reduce(reducer, 0);
+  qteTotalArticle.innerHTML = qteTotal;
+
+  
+}
+getTotalQtes();
+
+
+let btnSupprimer = document.querySelectorAll(".deleteItem");
+for (let j = 0; j < btnSupprimer.length; j++) {
+  btnSupprimer[j].addEventListener("click", (event) => {
+    event.preventDefault();
+
+    // Selection de l'element à supprimer en fonction de son id ET sa couleur
+    let idDelete = basket[j].id;
+    let colorDelete = basket[j].color;
+    
+    
+    basket = basket.filter(
+      (el) => el.id !== idDelete || el.color !== colorDelete
+    );
+
+    localStorage.setItem("basket", JSON.stringify(basket));
+
+    // Alerte attention produit supprimé et remise à zéro de la page panier
+    alert("Ce produit va être supprimé du panier !");
+    location.reload();
+  });
+}
+
+function modifQte() {
+  let input = document.querySelectorAll(".itemQuantity");
+  for (let j = 0; j < input.length; j++) {
+    
+    input[j].addEventListener("change", function (e) {
+      // Selection de l'element à modifier en fonction de son id ET sa couleur
+      let quantityModif = basket[j].quantity;
+      let qttModifValue = input[j].valueAsNumber;
+      const resultFind = basket.find(
+        (el) => el.qttModifValue !== quantityModif
       );
+      resultFind.quantiteProduit = qttModifValue;
+      basket[j].quantity = resultFind.quantiteProduit;
+      // +totalQuantity;
 
-      localStorage.setItem("produit", JSON.stringify(basket));
+      localStorage.setItem("basket", JSON.stringify(basket));
+      //ce que j'avais fait avant :
+      //  let quantityModif=basket[j].quantity;
 
-      // Alerte produit supprimé et refresh
-      alert("Ce produit a bien été supprimé du panier");
+      quantityModif = e.target.value;
       location.reload();
+      // refresh rapide
     });
   }
 }
-deleteProduct();
 
-//
-//Initialisation du local storage
+modifQte();
 
-const positionEmptyCart = document.querySelector("#cart__items");
-
-// Si le panier est vide
-function getCart() {
-  if (basket === null || basket == 0) {
-    const emptyCart = `<p>Votre panier est vide</p>`;
-    positionEmptyCart.innerHTML = emptyCart;
-  }
-}
-// <div class="cart__order">
-//           <form method="get" class="cart__order__form">
-//             <div class="cart__order__form__question">
-//               <label for="firstName">Prénom: </label>
-//               <input type="text" name="firstName" id="firstName" required>
-//               <p id="firstNameErrorMsg"><!-- ci est un message d'erreur --></p>
-//             </div>
-// Vérification du formulaire
 // Gestion du formulaire
-function getForm() {
-  // Ajout des Regex
-  let form = document.querySelector(".cart__order__form");
 
-  // Création des expressions régulières
-  let nameRegex = /^[a-zA-Z\-]+$/;
-  let charRegExp = new RegExp("/ ^[a-zàâéèëêïîôùüçœ'’ -]{1,40}$/i.");
-  let emailRegExp = new RegExp(
-    "^[a-zA-Z.,-_]+[@]{1}[a-zA-Z-_]+[.]{1}[a-z]{2,10}$"
-  );
+const btnEnvoyerFormulaire = document.querySelector("#order");
 
-  // Ecoute de la modification du prénom
-  form.firstName.addEventListener("change", function () {
-    validFirstName(this);
-  });
+btnEnvoyerFormulaire.addEventListener("click", (e) => {
+  e.preventDefault();
 
-  // Ecoute de la modification du nom
-  form.lastName.addEventListener("change", function () {
-    validLastName(this);
-  });
-
-  // Ecoute de la modification de l'adresse
-  form.address.addEventListener("change", function () {
-    validAddress(this);
-  });
-
-  // Ecoute de la modification de la ville
-  form.city.addEventListener("change", function () {
-    validCity(this);
-  });
-
-  // Ecoute de la modification de l'adresse mail
-  form.email.addEventListener("change", function () {
-    validEmail(this);
-  });
-
-  // Validation du prénom
-  const validFirstName = function (inputFirstName) {
-    let firstNameErrorMsg = inputFirstName.nextElementSibling;
-
-    if (charRegExp.test(inputFirstName.value)) {
-      firstNameErrorMsg.innerHTML = "";
-    } else {
-      firstNameErrorMsg.innerHTML =
-        "Veuillez renseigner votre Prénom, il ne doit pas contenir de caractères spéciaux";
-      invalid = true;
-      firstName.style.border = "2px solid red";
-    }
+  let contact = {
+    firstName: document.querySelector("#firstName").value,
+    lastName: document.querySelector("#lastName").value,
+    address: document.querySelector("#address").value,
+    city: document.querySelector("#city").value,
+    email: document.querySelector("#email").value,
   };
 
-  // Validation du nom
-  const validLastName = function (inputLastName) {
-    let lastNameErrorMsg = inputLastName.nextElementSibling;
-
-    if (nameRegex.test(inputLastName.value)) {
-      lastNameErrorMsg.innerHTML = "";
-      lastName.style.border = "none";
-    } else {
-      lastNameErrorMsg.innerHTML = "Veuillez renseigner votre Nom.";
-      invalid = true;
-      lastName.style.border = "3px solid red";
-    }
+  // Regex pour le contrôle des champs Prénom, Nom et Ville
+  const regExPrenomNomVille = (value) => {
+    return /^[a-zA-Z\-]+$/.test(value);
   };
 
-  // Validation de l'adresse
-  const validAddress = function (inputAddress) {
-    let addressErrorMsg = inputAddress.nextElementSibling;
-
-    if (charRegExp.test(inputAddress.value)) {
-      addressErrorMsg.innerHTML = "";
-    } else {
-      addressErrorMsg.innerHTML = "Veuillez renseigner votre Adresse";
-      invalid = true;
-      address.style.border = "3px solid red";
-    }
+  // Regex pour le contrôle du champ Adresse
+  const regExAdresse = (value) => {
+    return /^[A-Za-z0-9\s]{5,50}$/.test(value);
   };
 
-  // Validation de la ville
-  const validCity = function (inputCity) {
-    let cityErrorMsg = inputCity.nextElementSibling;
-
-    if (charRegExp.test(inputCity.value)) {
-      cityErrorMsg.innerHTML = "";
-    } else {
-      cityErrorMsg.innerHTML = "Veuillez renseigner votre Ville.";
-      invalid = true;
-      city.style.border = "3px solid red";
-    }
+  // Regex pour le contrôle du champ Email
+  const regExEmail = (value) => {
+    return /^[_a-z0-9-]+(.[_a-z0-9-]+)*@[a-z0-9-]+(.[a-z0-9-]+)*(.[a-z]{2,4})$/.test(
+      value
+    );
   };
 
-  // Validation de l'email
-  const validEmail = function (inputEmail) {
-    let emailErrorMsg = inputEmail.nextElementSibling;
+  // Fonctions de contrôle du champ Prénom:
+  function firstNameControl() {
+    const prenom = contact.firstName;
 
-    if (emailRegExp.test(inputEmail.value)) {
-      emailErrorMsg.innerHTML = "";
+    let inputFirstName = document.querySelector("#firstName");
+    if (regExPrenomNomVille(prenom)) {
+      inputFirstName.style.backgroundColor = "green";
+
+      document.querySelector("#firstNameErrorMsg").textContent = "";
+
+      return true;
     } else {
-      emailErrorMsg.innerHTML = "Adresse email invalide.";
+      inputFirstName.style.backgroundColor = "#FF6F61";
 
-      email.style.border = "3px solid red";
-      invalid = true;
+      document.querySelector("#firstNameErrorMsg").textContent =
+        "Champ Prénom de formulaire invalide, Veuillez entrer une majuscule au début du nom, prénom et ville et pas de caractères spéciaux s'il vous plaît";
+      return false;
     }
-  };
-}
-getForm();
+  }
+
+  // Fonctions de contrôle du champ Nom:
+  function lastNameControl() {
+    const nom = contact.lastName;
+    let inputLastName = document.querySelector("#lastName");
+    if (regExPrenomNomVille(nom)) {
+      inputLastName.style.backgroundColor = "green";
+
+      document.querySelector("#lastNameErrorMsg").textContent = "";
+      return true;
+    } else {
+      inputLastName.style.backgroundColor = "#FF6F61";
+
+      document.querySelector("#lastNameErrorMsg").textContent =
+        "Champ Nom de formulaire invalide, ex: Durand";
+      return false;
+    }
+  }
+
+  // Fonctions de contrôle du champ Adresse:
+  function addressControl() {
+    const adresse = contact.address;
+    let inputAddress = document.querySelector("#address");
+    if (regExAdresse(adresse)) {
+      inputAddress.style.backgroundColor = "green";
+
+      document.querySelector("#addressErrorMsg").textContent = "";
+      return true;
+    } else {
+      inputAddress.style.backgroundColor = "#FF6F61";
+
+      document.querySelector("#addressErrorMsg").textContent =
+        "Champ Adresse de formulaire invalide, ex: 50 rue de la paix";
+      return false;
+    }
+  }
+
+  // Fonctions de contrôle du champ Ville:
+  function cityControl() {
+    const ville = contact.city;
+    let inputCity = document.querySelector("#city");
+    if (regExPrenomNomVille(ville) && regExPrenomNomVille !== null) {
+      inputCity.style.backgroundColor = "green";
+
+      document.querySelector("#cityErrorMsg").textContent = "";
+      return true;
+    } else {
+      inputCity.style.backgroundColor = "#FF6F61";
+
+      document.querySelector("#cityErrorMsg").textContent =
+        "Champ Ville de formulaire invalide, ex: Paris";
+      return false;
+    }
+  }
+
+  // Fonctions de contrôle du champ Email:
+  function mailControl() {
+    const mail = contact.email;
+    let inputMail = document.querySelector("#email");
+    if (regExEmail(mail)) {
+      inputMail.style.backgroundColor = "green";
+
+      document.querySelector("#emailErrorMsg").textContent = "";
+      return true;
+    } else {
+      inputMail.style.backgroundColor = "#FF6F61";
+
+      document.querySelector("#emailErrorMsg").textContent =
+        "Champ Email de formulaire invalide, ex: example@contact.fr";
+      return false;
+    }
+  }
+  let products = [];
+
+  //collecter les id des produits du panier
+  basket.forEach((element) => {
+    products.push(element.id);
+  });
+  // Contrôle validité formulaire avant de l'envoyer dans le local storage
+  if (
+    firstNameControl() &&
+    lastNameControl() &&
+    addressControl() &&
+    cityControl() &&
+    mailControl() &&
+    products !== null
+  ) {
+    //je mets le tableau des id produits achetées et les infos formulaire contact
+    // dans un objet
+
+    let envoiFormulaire = {
+      contact,
+      products,
+    };
+
+    console.log("Formulaire à envoyer à l'API : ", envoiFormulaire);
+    // Send the object with the POST method.
+    fetch("http://localhost:3000/api/products/order", {
+      method: "POST",
+      body: JSON.stringify(envoiFormulaire),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then(async (res) => {
+        //reponse du fetch en réponse json(en un objet javascript)
+        response = await res.json();
+
+        document.location.href =
+          "confirmation.html?orderId=" + response.orderId;
+        document.location.href = `confirmation.html?orderId=${response.orderId}`;
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  } else {
+    e.preventDefault();
+  }
+});

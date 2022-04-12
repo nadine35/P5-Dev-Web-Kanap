@@ -249,6 +249,7 @@ btnEnvoyerFormulaire.addEventListener("click", (e) => {
       return false;
     }
   }
+  //on créé un panier vide de produits
   let products = [];
 
   //collecter les id des produits du panier
@@ -256,13 +257,14 @@ btnEnvoyerFormulaire.addEventListener("click", (e) => {
     products.push(element.id);
   });
   // Contrôle validité formulaire avant de l'envoyer dans le local storage
+  // contrôle panier non vide
   if (
     firstNameControl() &&
     lastNameControl() &&
     addressControl() &&
     cityControl() &&
     mailControl() &&
-    products !== null
+    (products.length>0)
   ) {
     //je mets le tableau des id produits achetées et les infos formulaire contact
     // dans un objet
@@ -274,18 +276,20 @@ btnEnvoyerFormulaire.addEventListener("click", (e) => {
 
     console.log("Formulaire à envoyer à l'API : ", envoiFormulaire);
     // Send the object with the POST method.
+    //requête de type POST avec le contenu JSON envoiFormulaire
     fetch("http://localhost:3000/api/products/order", {
       method: "POST",
-      body: JSON.stringify(envoiFormulaire),
+      body: JSON.stringify(envoiFormulaire),//transforme un objet js en un texte au format json
       headers: {
         "Content-Type": "application/json",
       },
     })
       .then(async (res) => {
-        //reponse du fetch en réponse json(en un objet javascript)
+//réponse du fetch en réponse json
         response = await res.json();
-
+//récupération de l'identifiant de la commande
         document.location.href =
+        
           "confirmation.html?orderId=" + response.orderId;
         document.location.href = `confirmation.html?orderId=${response.orderId}`;
       })

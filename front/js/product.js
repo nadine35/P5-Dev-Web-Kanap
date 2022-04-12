@@ -4,7 +4,7 @@ const productId = urlParams.get("id");
 var str = window.location.href;
 
 const urlProduit = `http://localhost:3000/api/products/${productId}`;
-
+//requête http avec GET pour récupérer des données
 fetch(urlProduit)
   .then(function (response) {
     if (response.ok) {

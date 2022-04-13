@@ -69,7 +69,7 @@ document.getElementById("addToCart").addEventListener("click", function () {
   } else if (color == "") {
     alert("Vous devez choisir une couleur !");
   } else {
-    if ((quantity > 0 || quantity < 100) && color !== "") {
+    if ((quantity > 0 && quantity <= 100 && quantity !=0) && color !== "") {
       //vérification si le produit est déjà dans le panier
       let productExists = false;
       if (basket.length > 0) {

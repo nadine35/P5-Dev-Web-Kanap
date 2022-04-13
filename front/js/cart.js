@@ -7,7 +7,6 @@ if (basket === null || basket.length === 0) {
 let section = document.getElementById("cart__items");
 let blabla = document.getElementsByClassName(".article");
 function displayCart(basket) {
-  
   for (let product of basket) {
     section.innerHTML += `<article class="cart__item" data-id=${product.id} data-color=${product.color}>
                  <div class="cart__item__img">
@@ -45,12 +44,11 @@ function getTotalPrix() {
     //mettre prix dans variable prixTotalCalcul
 
     prixTotalCalcul.push(prixProduitDansLePanier);
-
-   
   }
   //additionner les prix dans le tableau prixTotal avec la méthode reducer
   const reducer = (accumulator, currentValue) => accumulator + currentValue;
   const prixTotal = prixTotalCalcul.reduce(reducer, 0);
+  
   prixTotalArticle.innerHTML = prixTotal;
 }
 getTotalPrix();
@@ -63,18 +61,15 @@ function getTotalQtes() {
     let qteProduitDansLePanier = basket[l].quantity;
     //mettre prix dans variable prixTotalCalcul
     qteTotalCalcul.push(qteProduitDansLePanier);
-
-   
   }
   //additionner les prix dans le tableau prixTotal avec la méthode reducer
   const reducer = (accumulator, currentValue) => accumulator + currentValue;
   const qteTotal = qteTotalCalcul.reduce(reducer, 0);
-  qteTotalArticle.innerHTML = qteTotal;
-
   
+
+  qteTotalArticle.innerHTML = qteTotal;
 }
 getTotalQtes();
-
 
 let btnSupprimer = document.querySelectorAll(".deleteItem");
 for (let j = 0; j < btnSupprimer.length; j++) {
@@ -84,8 +79,7 @@ for (let j = 0; j < btnSupprimer.length; j++) {
     // Selection de l'element à supprimer en fonction de son id ET sa couleur
     let idDelete = basket[j].id;
     let colorDelete = basket[j].color;
-    
-    
+
     basket = basket.filter(
       (el) => el.id !== idDelete || el.color !== colorDelete
     );
@@ -101,7 +95,6 @@ for (let j = 0; j < btnSupprimer.length; j++) {
 function modifQte() {
   let input = document.querySelectorAll(".itemQuantity");
   for (let j = 0; j < input.length; j++) {
-    
     input[j].addEventListener("change", function (e) {
       // Selection de l'element à modifier en fonction de son id ET sa couleur
       let quantityModif = basket[j].quantity;
@@ -111,15 +104,13 @@ function modifQte() {
       );
       resultFind.quantiteProduit = qttModifValue;
       basket[j].quantity = resultFind.quantiteProduit;
-      // +totalQuantity;
 
       localStorage.setItem("basket", JSON.stringify(basket));
-      //ce que j'avais fait avant :
-      //  let quantityModif=basket[j].quantity;
 
       quantityModif = e.target.value;
+
       location.reload();
-      // refresh rapide
+      // refresh
     });
   }
 }
@@ -264,7 +255,7 @@ btnEnvoyerFormulaire.addEventListener("click", (e) => {
     addressControl() &&
     cityControl() &&
     mailControl() &&
-    (products.length>0)
+    products.length > 0
   ) {
     //je mets le tableau des id produits achetées et les infos formulaire contact
     // dans un objet
@@ -276,20 +267,19 @@ btnEnvoyerFormulaire.addEventListener("click", (e) => {
 
     console.log("Formulaire à envoyer à l'API : ", envoiFormulaire);
     // Send the object with the POST method.
-    //requête de type POST avec le contenu JSON envoiFormulaire
+    // Requête de type POST avec le contenu JSON envoiFormulaire
     fetch("http://localhost:3000/api/products/order", {
       method: "POST",
-      body: JSON.stringify(envoiFormulaire),//transforme un objet js en un texte au format json
+      body: JSON.stringify(envoiFormulaire), //transforme un objet js en un texte au format json
       headers: {
         "Content-Type": "application/json",
       },
     })
       .then(async (res) => {
-//réponse du fetch en réponse json
+        //réponse du fetch en réponse json
         response = await res.json();
-//récupération de l'identifiant de la commande
+        //récupération de l'identifiant de la commande
         document.location.href =
-        
           "confirmation.html?orderId=" + response.orderId;
         document.location.href = `confirmation.html?orderId=${response.orderId}`;
       })
